@@ -17,6 +17,10 @@ class AuthController {
       metadata: await AuthService.login({ email, password })
     }).send(res)
   }
+
+  static logout = async (req, res, next) => {
+    new SuccessResponse({}).send(res)
+  }
 }
 
 module.exports = AuthController

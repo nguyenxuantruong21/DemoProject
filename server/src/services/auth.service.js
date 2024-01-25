@@ -35,7 +35,7 @@ class AuthService {
         process.env.PRIVATE_KEY
       )
       return {
-        findUser: getSelectData(findUser, ['name', 'email']),
+        user: getSelectData(findUser, ['name', 'email']),
         tokens
       }
     }
@@ -71,10 +71,12 @@ class AuthService {
     )
 
     return {
-      findUser: getSelectData(findUser, ['name', 'email']),
+      user: getSelectData(findUser, ['name', 'email']),
       tokens
     }
   }
+
+  static logout = async () => {}
 }
 
 module.exports = AuthService
