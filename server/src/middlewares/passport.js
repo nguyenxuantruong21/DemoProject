@@ -1,21 +1,33 @@
-const passport = require('passport')
-const JwtStrategy = require('passport-jwt').Strategy
-const { ExtractJwt } = require('passport-jwt')
+var GoogleStrategy = require('passport-google-oauth2').Strategy
 const { config } = require('dotenv')
+const passport = require('passport')
+const db = require('../models/index')
 config()
 
 passport.use(
-  new JwtStrategy(
+  new GoogleStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken('Authorization'),
-      secretOrKey: process.env.PUBLIC_KEY
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: '/api/auth/google/callback',
+      passReqToCallback: true
     },
-    (payload, done) => {
+    async function (request, accessToken, refreshToken, profile, done) {
       try {
-        console.log('payload:::::::::', payload)
+        if (profile?.id) {
+          await db.User.findOrCreate({
+            where: { id: profile.id },
+            defaults: {
+              id: profile.id,
+              name: profile.displayName,
+              email: profile.email
+            }
+          })
+        }
       } catch (error) {
-        console.log('error:::::::::::::', error)
+        console.log(error)
       }
+      return done(null, profile)
     }
   )
 )

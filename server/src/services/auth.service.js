@@ -17,25 +17,25 @@ class AuthService {
     }
     // 2 hash password
     const hashPassword = await bcrypt.hash(password, 10)
-    const findUser = await db.User.create({
+    const response = await db.User.create({
       name,
       email,
       password: hashPassword
     })
     // 3 sign token
-    if (findUser) {
+    if (response) {
       const tokens = await createTokenPair(
         {
-          id: findUser.id,
-          name: findUser.name,
-          email: findUser.email,
-          password: findUser.password
+          id: response.id,
+          name: response.name,
+          email: response.email,
+          password: response.password
         },
         process.env.PUBLIC_KEY,
         process.env.PRIVATE_KEY
       )
       return {
-        user: getSelectData(findUser, ['name', 'email']),
+        user: getSelectData(response, ['name', 'email']),
         tokens
       }
     }
@@ -47,36 +47,56 @@ class AuthService {
 
   static login = async ({ email, password }) => {
     // 1 check email
-    const findUser = await db.User.findOne({
+    const response = await db.User.findOne({
       where: { email }
     })
-    if (!findUser) {
+    if (!response) {
       throw new BadRequestError('Email is not register')
     }
     // 2 check password
-    const match = bcrypt.compareSync(password, findUser.password)
+    const match = bcrypt.compareSync(password, response.password)
     if (!match) {
       throw new AuthFailuredError('Authorization error')
     }
     // 3 create token
     const tokens = await createTokenPair(
       {
-        id: findUser.id,
-        name: findUser.name,
-        email: findUser.email,
-        password: findUser.password
+        id: response.id,
+        name: response.name,
+        email: response.email,
+        password: response.password
       },
       process.env.PUBLIC_KEY,
       process.env.PRIVATE_KEY
     )
 
     return {
-      user: getSelectData(findUser, ['name', 'email']),
+      user: getSelectData(response, ['name', 'email']),
       tokens
     }
   }
 
-  static logout = async () => {}
+  static loginOpenAuth = async (id) => {
+    try {
+      const response = db.OpenAuth.findOne({
+        where: { id },
+        raw: true
+      })
+      const tokens = await createTokenPair(
+        {
+          id: response.id,
+          name: response.name,
+          email: response.email,
+          password: response.password
+        },
+        process.env.PUBLIC_KEY,
+        process.env.PRIVATE_KEY
+      )
+      return tokens
+    } catch (error) {
+      return error
+    }
+  }
 }
 
 module.exports = AuthService
