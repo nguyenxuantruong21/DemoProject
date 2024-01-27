@@ -69,7 +69,26 @@ class AuthService {
       process.env.PUBLIC_KEY,
       process.env.PRIVATE_KEY
     )
-
+    /*
+     find in database KeyToken {email} -> yes -> update -> refreshToken 
+     find in database KeyToken {email} -> no -> creat new  -> refreshToken 
+    */
+    const [_, created] = await db.KeyToken.findOrCreate({
+      where: { user_email: email },
+      defaults: {
+        user_email: email,
+        refreshToken: tokens.refreshToken
+      }
+    })
+    if (!created) {
+      await db.KeyToken.update(
+        {
+          refreshToken: tokens.refreshToken,
+          user_email: email
+        },
+        { where: { user_email: email } }
+      )
+    }
     return {
       user: getSelectData(response, ['name', 'email']),
       tokens
@@ -78,7 +97,7 @@ class AuthService {
 
   static loginOpenAuth = async (id) => {
     try {
-      const response = db.OpenAuth.findOne({
+      const response = await db.OpenAuth.findOne({
         where: { id },
         raw: true
       })
@@ -92,10 +111,32 @@ class AuthService {
         process.env.PUBLIC_KEY,
         process.env.PRIVATE_KEY
       )
+      const [_, created] = await db.KeyToken.findOrCreate({
+        where: { user_email: response.email },
+        defaults: {
+          user_email: response.email,
+          refreshToken: tokens.refreshToken
+        }
+      })
+      if (!created) {
+        await db.KeyToken.update(
+          {
+            refreshToken: tokens.refreshToken,
+            user_email: response.email
+          },
+          { where: { user_email: response.email } }
+        )
+      }
       return tokens
     } catch (error) {
       return error
     }
+  }
+
+  static logOut = async (email) => {
+    return await db.KeyToken.destroy({
+      where: { user_email: email }
+    })
   }
 }
 

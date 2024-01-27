@@ -15,7 +15,7 @@ passport.use(
     async function (request, accessToken, refreshToken, profile, done) {
       try {
         if (profile?.id) {
-          await db.User.findOrCreate({
+          await db.OpenAuth.findOrCreate({
             where: { id: profile.id },
             defaults: {
               id: profile.id,
@@ -24,6 +24,7 @@ passport.use(
             }
           })
         }
+        return done(null, profile)
       } catch (error) {
         console.log(error)
       }

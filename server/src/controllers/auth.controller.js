@@ -19,7 +19,7 @@ class AuthController {
     }).send(res)
   }
 
-  static loginSuccess = async (req, res, next) => {
+  static loginOpenAuth = async (req, res, next) => {
     const { id } = req.body
     try {
       if (!id) {
@@ -32,6 +32,14 @@ class AuthController {
     } catch (error) {
       return error
     }
+  }
+
+  static logOut = async (req, res, next) => {
+    const { email } = req.user
+    new SuccessResponse({
+      message: 'Logout Successfully',
+      metadata: await AuthService.logOut(email)
+    }).send(res)
   }
 }
 

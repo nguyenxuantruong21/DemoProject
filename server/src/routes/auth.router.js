@@ -3,6 +3,7 @@ const { asyncHandler } = require('../utils/index')
 const AuthController = require('../controllers/auth.controller')
 const passport = require('passport')
 const { config } = require('dotenv')
+const { Authorization } = require('../middlewares/authorization.middleware')
 config()
 const router = express.Router()
 
@@ -25,6 +26,10 @@ router.get(
   }
 )
 
-router.post('/login-success', asyncHandler(AuthController.loginSuccess))
+router.post('/login-success', asyncHandler(AuthController.loginOpenAuth))
+
+router.use(Authorization)
+
+router.post('/logout', asyncHandler(AuthController.logOut))
 
 module.exports = router
