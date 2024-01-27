@@ -18,10 +18,6 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
-      role_code: {
-        type: Sequelize.STRING,
-        defaultValue: 'R3'
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
