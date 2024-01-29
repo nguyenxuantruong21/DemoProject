@@ -15,8 +15,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       role_code: {
-        type: Sequelize.STRING,
-        defaultValue: 'R3'
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
