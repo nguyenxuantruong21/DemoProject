@@ -29,7 +29,6 @@ router.get(
 router.post('/login-success', asyncHandler(AuthController.loginOpenAuth))
 
 router.use(Authorization)
-
 router.post('/logout', asyncHandler(AuthController.logOut))
 
 module.exports = router
