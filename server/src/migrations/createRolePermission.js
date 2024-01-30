@@ -9,10 +9,10 @@ module.exports = {
         autoIncrement: true,
         type: Sequelize.INTEGER
       },
-      user_id: {
+      role_id: {
         type: Sequelize.INTEGER
       },
-      role_id: {
+      permission_id: {
         type: Sequelize.INTEGER
       },
       createdAt: {

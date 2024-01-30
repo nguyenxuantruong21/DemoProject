@@ -4,6 +4,7 @@ const { BadRequestError, AuthFailuredError } = require('../messages/error.respon
 const { createTokenPair } = require('../utils/jwt')
 const { getSelectData } = require('../utils/index')
 const db = require('../models/index')
+const { Roles } = require('../config/roles')
 config()
 
 class AuthService {
@@ -24,6 +25,10 @@ class AuthService {
     })
     // 3 sign token
     if (response) {
+      await db.UserRole.create({
+        user_id: response.id,
+        role_id: Roles.user
+      })
       const tokens = await createTokenPair(
         {
           id: response.id,
