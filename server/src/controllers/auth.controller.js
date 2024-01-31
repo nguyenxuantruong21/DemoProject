@@ -4,10 +4,10 @@ const { AuthFailuredError } = require('../messages/error.response')
 
 class AuthController {
   static register = async (req, res, next) => {
-    const { name, email, password } = req.body
+    const { name, email, password, date } = req.body
     new SuccessResponse({
       message: 'Register successfully',
-      metadata: await AuthService.register({ name, email, password })
+      metadata: await AuthService.register({ name, email, date, password })
     }).send(res)
   }
 

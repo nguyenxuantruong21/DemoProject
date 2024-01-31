@@ -2,13 +2,13 @@ const bcrypt = require('bcrypt')
 const { config } = require('dotenv')
 const { BadRequestError, AuthFailuredError } = require('../messages/error.response')
 const { createTokenPair } = require('../utils/jwt')
-const { getSelectData } = require('../utils/index')
+const { getSelectData, formatDate } = require('../utils/index')
 const db = require('../models/index')
 const { Roles } = require('../config/roles')
 config()
 
 class AuthService {
-  static register = async ({ name, email, password }) => {
+  static register = async ({ name, email, date, password }) => {
     // 1 check shop
     const foundUser = await db.User.findOne({
       where: { email }
@@ -18,22 +18,21 @@ class AuthService {
     }
     // 2 hash password
     const hashPassword = await bcrypt.hash(password, 10)
+    const dateFormat = formatDate(date)
     const response = await db.User.create({
       name,
       email,
+      date: dateFormat,
       password: hashPassword
     })
     // 3 sign token
     if (response) {
-      await db.UserRole.create({
-        user_id: response.id,
-        role_id: Roles.user
-      })
       const tokens = await createTokenPair(
         {
           id: response.id,
           name: response.name,
           email: response.email,
+          date: response.date,
           password: response.password
         },
         process.env.PUBLIC_KEY,
@@ -69,6 +68,7 @@ class AuthService {
         id: response.id,
         name: response.name,
         email: response.email,
+        date: response.date,
         password: response.password
       },
       process.env.PUBLIC_KEY,

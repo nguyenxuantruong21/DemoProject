@@ -1,6 +1,6 @@
 'use strict'
 
-const { faker } = require('@faker-js/faker')
+const { faker, fa } = require('@faker-js/faker')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -11,6 +11,7 @@ module.exports = {
       data.push({
         name: faker.internet.userName(),
         email: faker.internet.email(),
+        date: faker.date.birthdate(),
         password: faker.internet.password()
       })
     }

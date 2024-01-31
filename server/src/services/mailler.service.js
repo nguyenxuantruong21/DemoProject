@@ -3,7 +3,7 @@ const { config } = require('dotenv')
 config()
 
 class MaillerService {
-  static sendMailler = async (email) => {
+  static sendMailler = async ({ email, content }) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       host: 'smtp.gmail.com',
@@ -19,9 +19,9 @@ class MaillerService {
     const info = await transporter.sendMail({
       from: 'xuantruong200101@gmail.com', // sender address
       to: email, // list of receivers
-      subject: 'Hello ✔', // Subject line
-      text: 'Hello world?', // plain text body
-      html: '<b>Hello world?</b>' // html body
+      subject: 'Coder', // Subject line
+      // text: 'Hello world?', // plain text body
+      html: `<b>${content}</b>` // html body
     })
     return info
   }
