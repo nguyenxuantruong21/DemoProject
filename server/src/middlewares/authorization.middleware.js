@@ -1,7 +1,7 @@
 const JWT = require('jsonwebtoken')
 const { config } = require('dotenv')
 const db = require('../models')
-const { Roles } = require('../config/roles')
+const { Roles } = require('../config/roles.config')
 config()
 
 const Authorization = async (req, res, next) => {

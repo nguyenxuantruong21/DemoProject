@@ -4,7 +4,7 @@ const { BadRequestError, AuthFailuredError } = require('../messages/error.respon
 const { createTokenPair } = require('../utils/jwt')
 const { getSelectData, formatDate } = require('../utils/index')
 const db = require('../models/index')
-const { Roles } = require('../config/roles')
+const { Roles } = require('../config/config.json')
 config()
 
 class AuthService {
