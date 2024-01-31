@@ -3,10 +3,10 @@ const MaillerService = require('../services/mailler.service')
 
 class MailController {
   static sendMail = async (req, res, next) => {
-    const { mail } = req.body
+    const { email, content } = req.body
     new SuccessResponse({
       message: 'Send mail successfully',
-      metadata: await MaillerService.sendMailler(mail)
+      metadata: await MaillerService.sendMailler({ email, content })
     }).send(res)
   }
 }

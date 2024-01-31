@@ -1,5 +1,5 @@
 const express = require('express')
-const MailController = require('../controllers/mail.controller')
+const MailController = require('../controllers/mailler.controller')
 const { asyncHandler } = require('../utils')
 const router = express.Router()
 
