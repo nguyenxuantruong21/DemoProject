@@ -1,4 +1,6 @@
 const JWT = require('jsonwebtoken')
+const { config } = require('dotenv')
+config()
 
 const createTokenPair = async (payload, publickey, privatekey) => {
   try {
@@ -21,6 +23,12 @@ const createTokenPair = async (payload, publickey, privatekey) => {
   }
 }
 
+const verifyRefreshToken = (refreshToken) => {
+  const token = refreshToken.split(' ')[1]
+  return JWT.verify(token, process.env.PRIVATE_KEY)
+}
+
 module.exports = {
-  createTokenPair
+  createTokenPair,
+  verifyRefreshToken
 }

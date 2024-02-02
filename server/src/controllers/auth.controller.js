@@ -41,6 +41,22 @@ class AuthController {
       metadata: await AuthService.logOut(email)
     }).send(res)
   }
+
+  static getMe = async (req, res, next) => {
+    const { id } = req.user
+    new SuccessResponse({
+      message: 'Get Me Successfully',
+      metadata: await AuthService.getMe(id)
+    }).send(res)
+  }
+
+  static refreshToken = async (req, res, next) => {
+    const { refreshToken } = req.body
+    new SuccessResponse({
+      message: 'Get Me Successfully',
+      metadata: await AuthService.refreshToken(refreshToken)
+    }).send(res)
+  }
 }
 
 module.exports = AuthController

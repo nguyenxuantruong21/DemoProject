@@ -1,13 +1,19 @@
 const bcrypt = require('bcrypt')
 const { config } = require('dotenv')
 const { BadRequestError, AuthFailuredError } = require('../messages/error.response')
-const { createTokenPair } = require('../utils/jwt')
+const { createTokenPair, verifyRefreshToken } = require('../utils/jwt')
 const { getSelectData, formatDate } = require('../utils/index')
 const db = require('../models/index')
-const { Roles } = require('../config/config.json')
 config()
 
 class AuthService {
+  /**
+   * @param {name}
+   * @param {email}
+   * @param {date}
+   * @param {password}
+   * @returns {user, token}
+   */
   static register = async ({ name, email, date, password }) => {
     // 1 check shop
     const foundUser = await db.User.findOne({
@@ -31,9 +37,7 @@ class AuthService {
         {
           id: response.id,
           name: response.name,
-          email: response.email,
-          date: response.date,
-          password: response.password
+          email: response.email
         },
         process.env.PUBLIC_KEY,
         process.env.PRIVATE_KEY
@@ -48,6 +52,12 @@ class AuthService {
       metadata: null
     }
   }
+
+  /**
+   * @param {email}
+   * @param {password}
+   * @returns {user, token}
+   */
 
   static login = async ({ email, password }) => {
     // 1 check email
@@ -67,9 +77,7 @@ class AuthService {
       {
         id: response.id,
         name: response.name,
-        email: response.email,
-        date: response.date,
-        password: response.password
+        email: response.email
       },
       process.env.PUBLIC_KEY,
       process.env.PRIVATE_KEY
@@ -100,6 +108,10 @@ class AuthService {
     }
   }
 
+  /**
+   * @param {google}
+   * @returns {user, token}
+   */
   static loginOpenAuth = async (id) => {
     try {
       const response = await db.OpenAuth.findOne({
@@ -110,8 +122,7 @@ class AuthService {
         {
           id: response.id,
           name: response.name,
-          email: response.email,
-          password: response.password
+          email: response.email
         },
         process.env.PUBLIC_KEY,
         process.env.PRIVATE_KEY
@@ -138,11 +149,75 @@ class AuthService {
     }
   }
 
+  /**
+   * @param {email}
+   * @returns {DELETE}
+   */
   static logOut = async (email) => {
     return await db.KeyToken.destroy({
       where: { user_email: email }
     })
   }
+
+  /**
+   * @param {id}
+   * @returns {user}
+   */
+  static getMe = async (id) => {
+    try {
+      const response = await db.User.findOne({
+        where: { id },
+        attributes: { exclude: ['createdAt', 'updatedAt', 'password'] }
+      })
+      return response.dataValues
+    } catch (error) {
+      return error
+    }
+  }
+
+  /**
+   *
+   * @param {id}
+   * @param {name}
+   * @param {email}
+   * @returns {tokens}
+   */
+  static refreshToken = async (refreshToken) => {
+    try {
+      const foundToken = await db.KeyToken.findOne({
+        where: { refreshToken: refreshToken }
+      })
+      if (!foundToken) {
+        return {
+          message: 'Token invalide'
+        }
+      }
+      const { id, name, email } = verifyRefreshToken(refreshToken)
+      const tokens = await createTokenPair(
+        {
+          id: id,
+          name: name,
+          email: email
+        },
+        process.env.PUBLIC_KEY,
+        process.env.PRIVATE_KEY
+      )
+      await db.KeyToken.update(
+        {
+          refreshToken: tokens.refreshToken,
+          user_email: email
+        },
+        { where: { user_email: email } }
+      )
+      return {
+        tokens
+      }
+    } catch (error) {
+      return error
+    }
+  }
+
+  
 }
 
 module.exports = AuthService
